@@ -350,7 +350,7 @@ static int UPLOADFINISH = -11;
 //        }
         
         NSDictionary *dict = [_tableValueDict objectForKey:@"buttonList"];
-        static NSStringCompareOptions comparisonOptions = NSCaseInsensitiveSearch | NSNumericSearch | NSWidthInsensitiveSearch | NSForcedOrderingSearch;
+        static NSStringCompareOptions comparisonOptions = NSCaseInsensitiveSearch | NSNumericSearch;
         for (NSDictionary *dictionary in dict){
             if ([dictionary objectForKey:@"fName"] && [[dictionary objectForKey:@"fName"] compare:@"附件" options:comparisonOptions] == NSOrderedSame) {
                 if ([dictionary objectForKey:@"fPara"] && [[dictionary objectForKey:@"fPara"] compare:@"NoLocal" options:comparisonOptions] == NSOrderedSame) {
@@ -413,6 +413,7 @@ static int UPLOADFINISH = -11;
 - (void)toolbarProcess:(id)sender
 {
     UIBarButtonItem *barButtonItem = (UIBarButtonItem*)sender;
+    [barButtonItem setEnabled:false];
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/classType!buttonJsonClassTable.action", delegate.SERVER_HOST];
     TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
@@ -1480,14 +1481,14 @@ static int UPLOADFINISH = -11;
             imagesize.height =768;
             imagesize.width =1024;
             //对图片大小进行压缩--
-            imageToSave = [UIImage imageWithData:UIImageJPEGRepresentation([self imageWithImage:editedImage scaledToSize:imagesize],0.1f)];
+            imageToSave = [UIImage imageWithData:UIImageJPEGRepresentation([self imageWithImage:editedImage scaledToSize:imagesize],0.5f)];
         } else {
             //设置image的尺寸
             CGSize imagesize = originalImage.size;
             imagesize.height =768;
             imagesize.width =1024;
             //对图片大小进行压缩--
-            imageToSave = [UIImage imageWithData:UIImageJPEGRepresentation([self imageWithImage:originalImage scaledToSize:imagesize],0.1f)];
+            imageToSave = [UIImage imageWithData:UIImageJPEGRepresentation([self imageWithImage:originalImage scaledToSize:imagesize],0.5f)];
         }
         //存储照片到胶卷
         //UIImageWriteToSavedPhotosAlbum (self.imageToSave, nil, nil , nil);
