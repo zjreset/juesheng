@@ -5,34 +5,34 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>D0316B04-02C2-4A15-B7C1-189E701B9DB1</string>
+	<string>ED2C9745-0F44-4E13-BC44-3FC2056689FC</string>
 	<key>IDESourceControlProjectName</key>
 	<string>juesheng</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>5A5C0BBA-DEBC-4AD2-A2B0-95691707AAC7</key>
-		<string>https://github.com/hzheige/juesheng.git</string>
+		<key>9193181E09CE21A004318267FF67E280B47E6506</key>
+		<string>https://github.com/zjreset/juesheng.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>juesheng.xcodeproj/project.xcworkspace</string>
+	<string>juesheng.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>5A5C0BBA-DEBC-4AD2-A2B0-95691707AAC7</key>
+		<key>9193181E09CE21A004318267FF67E280B47E6506</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/hzheige/juesheng.git</string>
+	<string>https://github.com/zjreset/juesheng.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>5A5C0BBA-DEBC-4AD2-A2B0-95691707AAC7</string>
+	<string>9193181E09CE21A004318267FF67E280B47E6506</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>5A5C0BBA-DEBC-4AD2-A2B0-95691707AAC7</string>
+			<string>9193181E09CE21A004318267FF67E280B47E6506</string>
 			<key>IDESourceControlWCCName</key>
 			<string>juesheng</string>
 		</dict>

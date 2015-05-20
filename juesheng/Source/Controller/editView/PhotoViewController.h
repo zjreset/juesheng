@@ -7,7 +7,7 @@
 //
 
 #import "Three20UI/Three20UI.h"
-@interface PhotoViewController : TTPhotoViewController
+@interface PhotoViewController : TTPhotoViewController<UIAlertViewDelegate>
 
 @property (nonatomic, assign) NSInteger classType;
 @property (nonatomic, assign) NSInteger fItemId;
@@ -15,5 +15,6 @@
 @property (nonatomic, retain) NSString *ftpUserName;
 @property (nonatomic, retain) NSString *ftpPassword;
 @property (nonatomic, retain) NSMutableString *filePath;
+@property (nonatomic, retain) NSMutableArray *slaveArray;
 - (id)initWithClassType:(NSInteger)classType itemId:(NSInteger)fItemId;
 @end

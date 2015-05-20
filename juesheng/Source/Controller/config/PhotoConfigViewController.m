@@ -42,17 +42,31 @@
     
     //设置数据同步按钮
     UIButton *synButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    synButton.frame = CGRectMake(30, 20, 30, 30);
+    synButton.frame = CGRectMake(30, 50, 30, 30);
     synButton.backgroundColor = [UIColor colorWithPatternImage:TTIMAGE(@"bundle://task_outbox_tabbar.png")];
     [synButton addTarget:self action:@selector(setData) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:synButton];
     //    [synButton release];
     
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(70, 20, 200, 30)];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(70, 50, 200, 30)];
     label.backgroundColor = [UIColor clearColor];
     label.text = @"上传本地未上传的照片";
     [self.view addSubview:label];
     [label release];
+    
+    //设置数据删除按钮
+    UIButton *deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    deleteButton.frame = CGRectMake(30, 150, 30, 30);
+    deleteButton.backgroundColor = [UIColor colorWithPatternImage:TTIMAGE(@"bundle://delete-icon.png")];
+    [deleteButton addTarget:self action:@selector(deleteData) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:deleteButton];
+    //    [synButton release];
+    
+    UILabel *deleteLabel = [[UILabel alloc] initWithFrame:CGRectMake(70, 150, 200, 30)];
+    deleteLabel.backgroundColor = [UIColor clearColor];
+    deleteLabel.text = @"删除本地未上传的照片";
+    [self.view addSubview:deleteLabel];
+    [deleteLabel release];
     
     _hud = [[ATMHud alloc] initWithDelegate:self];
     [self.view addSubview:_hud.view];
@@ -81,6 +95,22 @@
 //        [self _startCreate:_ftpHead dictionary:ftpDictionary];
 //        [self _startSend:[NSString stringWithFormat:@"%@%@",_ftpHead,ftpDictionary] filePath:filePath];
 //    }
+}
+
+- (void)deleteData{
+    NSMutableArray * photoArray = [[_dbc selectObject:@"TPhotoConfig"] copy];
+    for (TPhotoConfig *photoConfig in photoArray){
+        [_dbc deleteObject:photoConfig];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        [fileManager removeItemAtPath:[[[self documentFolderPath] stringByAppendingPathComponent:photoConfig.photoName] copy] error:nil];
+    }
+    [photoArray release];
+    UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"删除本地图片成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+    
+    //将这个UIAlerView 显示出来
+    [alert show];
+    //释放
+    [alert release];
 }
 
 -(void)uploadPhoto

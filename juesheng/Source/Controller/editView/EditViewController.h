@@ -14,14 +14,17 @@
 #import "ATPagingView.h"
 #import <AVFoundation/AVFoundation.h>
 #import "SelectTableViewController.h"
+#import "QBImagePickerController.h"
+#import "SVProgressHUD.h"
 
 @class TSAlertView;
-@interface EditViewController : TTViewController<UIAlertViewDelegate,UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,PhotoUploadDelegate,ATPagingViewDelegate,UITextViewDelegate,SelectTableViewDelegate>
+@interface EditViewController : TTViewController<UIAlertViewDelegate,UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,UIActionSheetDelegate,QBImagePickerControllerDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,PhotoUploadDelegate,ATPagingViewDelegate,UITextViewDelegate,SelectTableViewDelegate>
 {
     NSInteger firstTextFieldTag;
     NSMutableArray *_indexArray;
     BOOL _isAppear;
     BOOL _isUploadLoation;
+    BOOL _isdropquery;
 }
 @property (nonatomic, assign) NSInteger classType;
 @property (nonatomic, assign) NSInteger fItemId;

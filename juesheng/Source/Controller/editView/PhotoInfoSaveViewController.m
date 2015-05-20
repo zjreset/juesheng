@@ -11,6 +11,7 @@
 #import "TPhotoConfig.h"
 #import "ATMHud.h"
 #import "LoginViewController.h"
+#import "MyImageObject.h"
 
 @interface PhotoInfoSaveViewController ()
 
@@ -18,7 +19,7 @@
 
 @implementation PhotoInfoSaveViewController
 static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
-@synthesize saveImage=_saveImage,imageName=_imageName,mySwitch=_mySwitch,fBillNo=_fBillNo,classType=_classType,fItemId=_fItemId,delegate=_delegate;
+@synthesize imageArray=_imageArray,mySwitch=_mySwitch,fBillNo=_fBillNo,classType=_classType,fItemId=_fItemId,delegate=_delegate;
 @synthesize networkStream = _networkStream;
 @synthesize fileStream    = _fileStream;
 @synthesize bufferOffset  = _bufferOffset;
@@ -33,13 +34,14 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
 @synthesize latNumber=_latNumber;
 @synthesize hud=_hud;
 @synthesize isFirstDictionary=_isFirstDictionary;
+@synthesize ftpServiceSetup=_ftpServiceSetup;
 
-- (id)initWithImage:(UIImage *)image imageName:(NSString*)imageName classType:(NSInteger)classType itemId:(NSInteger)fItemId billNo:(NSString*)fBillNo lon:(NSNumber*)lon lat:(NSNumber*)lat
+- (id)initWithImage:(NSArray *)imageArray classType:(NSInteger)classType itemId:(NSInteger)fItemId billNo:(NSString*)fBillNo lon:(NSNumber*)lon lat:(NSNumber*)lat
 {
     self = [super init];
     if (self) {
-        _saveImage = [image retain];
-        _imageName = [imageName retain];
+        _imageArray = [[NSMutableArray alloc] initWithArray:imageArray];
+        //_imageName = [imageName retain];
         _classType = classType;
         _fItemId = fItemId;
         _fBillNo = [fBillNo retain];
@@ -58,6 +60,7 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
 
 - (void)viewDidLoad
 {
+    _ftpServiceSetup = false;
     self.view.backgroundColor = [UIColor colorWithPatternImage:TTIMAGE(@"bundle://middle_bk.jpg")];
     if (!_fItemId) {
         UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"该单据还没有生成,请先生成单据!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
@@ -67,10 +70,16 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
     }
     [super viewDidLoad];
     self.title = @"照片或视频上传";
-    UIImageView *imageView = [[UIImageView alloc] initWithImage:_saveImage];
-    imageView.frame = CGRectMake(10, 40, 300, 300);
-    [self.view addSubview:imageView];
-    [imageView release];
+    UILabel *plabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 50, 300, 30)];
+    plabel.backgroundColor = [UIColor clearColor];
+    plabel.text = [NSString stringWithFormat:@"共%i个文件",[_imageArray count]];
+    [self.view addSubview:plabel];
+    [plabel release];
+    
+//    UIImageView *imageView = [[UIImageView alloc] initWithImage:_saveImage];
+//    imageView.frame = CGRectMake(10, 40, 300, 300);
+//    [self.view addSubview:imageView];
+//    [imageView release];
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 220, 30)];
     label.text = @"现在上传照片或视频";
@@ -100,7 +109,12 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
 
 - (void) savePhotoInfo
 {
-    if (_lonNumber == 0 || _latNumber == 0) {
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+    BOOL needLocation = false;
+    if ([defaults objectForKey:@"fOpenGPS"]) {
+        needLocation = [[defaults objectForKey:@"fOpenGPS"] boolValue];
+    }
+    if ((_lonNumber == 0 || _latNumber == 0) && needLocation) {
         //创建对话框 提示用户重新输入
         UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"未获取到定位信息,请确认已经开启GPS定位" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
         [alert show];
@@ -110,19 +124,25 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/slave!saveClassSlave.action", delegate.SERVER_HOST];
     
-    TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
-    [request setHttpMethod:@"POST"];
+    int i = 0;
+    for (MyImageObject *imageObject in _imageArray){
+        TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
+        [request setHttpMethod:@"POST"];
+        
+        request.contentType=@"application/x-www-form-urlencoded";
+        NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&fItemId=%i&fBillNo=%@&fileName=%@&fileSize=%i&fx=%f&fy=%f",_classType,_fItemId,_fBillNo,imageObject.imageName,UIImageJPEGRepresentation(imageObject.image,0.50f).length,_lonNumber.floatValue,_latNumber.floatValue];
+        request.cachePolicy = TTURLRequestCachePolicyNoCache;
+        NSData* postData = [NSData dataWithBytes:[postBodyString UTF8String] length:[postBodyString length]];
+        
+        [request setHttpBody:postData];
+        
+        [request send];
+        request.userInfo = [NSNumber numberWithInt:i];
+        
+        request.response = [[[TTURLDataResponse alloc] init] autorelease];
+        i++;
+    }
     
-    request.contentType=@"application/x-www-form-urlencoded";
-    NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&fItemId=%i&fBillNo=%@&fileName=%@&fileSize=%i&fx=%f&fy=%f",_classType,_fItemId,_fBillNo,_imageName,UIImageJPEGRepresentation(_saveImage,0.50f).length,_lonNumber.floatValue,_latNumber.floatValue];
-    request.cachePolicy = TTURLRequestCachePolicyNoCache;
-    NSData* postData = [NSData dataWithBytes:[postBodyString UTF8String] length:[postBodyString length]];
-    
-    [request setHttpBody:postData];
-    
-    [request send];
-    
-    request.response = [[[TTURLDataResponse alloc] init] autorelease];
 }
 
 //开始请求
@@ -164,7 +184,9 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
             //NSString *dictionary = [NSString stringWithFormat:@"/%i/%i",_classType,_fItemId];
             NSString *dictionary = [NSString stringWithFormat:@"/%i",_classType];
             _isFirstDictionary = true;
-            [self _startCreate:_ftpHead dictionary:dictionary];
+            if (!_ftpServiceSetup) {
+                [self _startCreate:_ftpHead dictionary:dictionary];
+            }
         }
         else {
             //本地存储照片信息
@@ -173,7 +195,8 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
             TPhotoConfig* tPhotoConfig = (TPhotoConfig*)[NSEntityDescription insertNewObjectForEntityForName:@"TPhotoConfig" inManagedObjectContext:managedObjectContext];
             tPhotoConfig.classType = [NSNumber numberWithInt:_classType];
             tPhotoConfig.fItemId = [NSNumber numberWithInt:_fItemId];
-            tPhotoConfig.photoName = [_imageName retain];
+            MyImageObject *imageObject = [_imageArray objectAtIndex:[(NSNumber*)request.userInfo integerValue]];
+            tPhotoConfig.photoName = imageObject.imageName;
             NSError *error;
             if (![managedObjectContext save:&error]) {
                 // Handle the error.
@@ -215,9 +238,6 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
         [[self navigationController] popViewControllerAnimated:YES];
     }
     else if(theAlert.tag == -4){    //保存上传信息成功,已上传照片,删除本地照片
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSString *fileName = [[self documentFolderPath] stringByAppendingPathComponent:_imageName];
-        [fileManager removeItemAtPath:fileName error:nil];
         [_delegate reloadEditView];
         [[self navigationController] popViewControllerAnimated:YES];
     }
@@ -241,8 +261,7 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
 - (void) dealloc
 {
     [super dealloc];
-    [_saveImage release];
-    [_imageName release];
+    [_imageArray release];
     _classType = 0;
     _fItemId = 0;
     [_mySwitch release];
@@ -262,7 +281,6 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
     BOOL                    success;
     NSURL *                 url;
     CFWriteStreamRef        ftpStream;
-    
     assert(self.networkStream == nil);      // don't tap create twice in a row!
     //定义为文件夹创建
     _isDictionary = YES;
@@ -324,6 +342,7 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
     [_hud setActivityStyle:UIActivityIndicatorViewStyleWhiteLarge];
     [_hud show];
     [[AppDelegate sharedAppDelegate] didStartNetworking];
+    _ftpServiceSetup = true;
 }
 
 - (void)_sendDidStopWithStatus:(NSString *)statusString
@@ -341,13 +360,25 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
                 _isDictionary = !_isDictionary;
                 NSString *dictionary = [NSString stringWithFormat:@"/%i/%i",_classType,_fItemId];
                 //开始FTP上传图片
-                [self _startSend:[[self documentFolderPath] stringByAppendingPathComponent:_imageName] ftpHead:_ftpHead ftpDictionay:dictionary];
+                [self _startSend:[[self documentFolderPath] stringByAppendingPathComponent:((MyImageObject*)[_imageArray objectAtIndex:_imageArray.count - 1]).imageName] ftpHead:_ftpHead ftpDictionay:dictionary];
             }
             else {                  //上传完成
-                UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"上传成功" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
-                alert.tag = -4;
-                [alert show];
-                [alert release];
+                NSFileManager *fileManager = [NSFileManager defaultManager];
+                NSString *fileName = [[self documentFolderPath] stringByAppendingPathComponent:((MyImageObject*)[_imageArray objectAtIndex:_imageArray.count - 1]).imageName];
+                [fileManager removeItemAtPath:fileName error:nil];
+                if (_imageArray.count > 1) {
+                    [_imageArray removeObjectAtIndex:_imageArray.count - 1];
+                    NSString *dictionary = [NSString stringWithFormat:@"/%i/%i",_classType,_fItemId];
+                    [self _startSend:[[self documentFolderPath] stringByAppendingPathComponent:((MyImageObject*)[_imageArray objectAtIndex:_imageArray.count - 1]).imageName] ftpHead:_ftpHead ftpDictionay:dictionary];
+                }
+                else{
+                    [[AppDelegate sharedAppDelegate] didStopNetworking];
+                    _ftpServiceSetup = false;
+                    UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"上传成功" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+                    alert.tag = -4;
+                    [alert show];
+                    [alert release];
+                }
             }
         }
     }
@@ -355,8 +386,9 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
         UIAlertView * alert= [[UIAlertView alloc] initWithTitle:statusString message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
         [alert show];
         [alert release];
+        [[AppDelegate sharedAppDelegate] didStopNetworking];
+        _ftpServiceSetup = false;
     }
-    [[AppDelegate sharedAppDelegate] didStopNetworking];
 }
 
 - (uint8_t *)buffer

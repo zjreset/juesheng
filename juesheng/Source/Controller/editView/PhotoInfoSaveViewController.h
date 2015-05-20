@@ -20,8 +20,9 @@ enum {
     size_t                      _bufferOffset;
     size_t                      _bufferLimit;
 }
-@property (nonatomic, retain) UIImage* saveImage;
-@property (nonatomic, retain) NSString *imageName;
+//@property (nonatomic, retain) UIImage* saveImage;
+@property (nonatomic, retain) NSMutableArray* imageArray;
+//@property (nonatomic, retain) NSString *imageName;
 @property (nonatomic, retain) UISwitch* mySwitch;
 @property (nonatomic, assign) NSInteger classType;
 @property (nonatomic, assign) NSInteger fItemId;
@@ -42,8 +43,9 @@ enum {
 @property (nonatomic, assign) BOOL isDictionary;
 @property (nonatomic, retain) NSNumber *lonNumber;
 @property (nonatomic, retain) NSNumber *latNumber;
+@property (nonatomic, assign) BOOL ftpServiceSetup;
 @property (nonatomic, retain) ATMHud *hud;
-- (id)initWithImage:(UIImage *)image imageName:(NSString*)imageName classType:(NSInteger)classType itemId:(NSInteger)fItemId billNo:(NSString*)fBillNo lon:(NSNumber*)lon lat:(NSNumber*)lat;
+- (id)initWithImage:(NSArray *)imageArray classType:(NSInteger)classType itemId:(NSInteger)fItemId billNo:(NSString*)fBillNo lon:(NSNumber*)lon lat:(NSNumber*)lat;
 @end
 @protocol PhotoUploadDelegate <NSObject>
 

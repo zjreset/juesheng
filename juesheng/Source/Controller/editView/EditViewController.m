@@ -17,6 +17,8 @@
 #import "CateViewController.h"
 #import "IQKeyBoardManager.h"
 #import "TableViewController.h"
+#import "QBImagePickerController.h"
+#import "MyImageObject.h"
 
 @interface EditViewController ()
 
@@ -138,6 +140,7 @@ static int UPLOADFINISH = -11;
 
 - (void)queryTableField
 {
+    [SVProgressHUD showWithStatus:@"查询中..." maskType:SVProgressHUDMaskTypeClear];
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/classType!getTableFieldList.action", delegate.SERVER_HOST];
     TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
@@ -158,6 +161,7 @@ static int UPLOADFINISH = -11;
 
 - (void)queryTableInfoValue
 {
+    [SVProgressHUD showWithStatus:@"查询中..." maskType:SVProgressHUDMaskTypeClear];
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/classType!getTableSigleValueMap.action", delegate.SERVER_HOST];
     TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
@@ -178,6 +182,7 @@ static int UPLOADFINISH = -11;
 
 - (void)queryTableInfoValueByButton
 {
+    [SVProgressHUD showWithStatus:@"查询中..." maskType:SVProgressHUDMaskTypeClear];
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/classType!getButtonTableSigleValueMap.action", delegate.SERVER_HOST];
     TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
@@ -413,7 +418,6 @@ static int UPLOADFINISH = -11;
 - (void)toolbarProcess:(id)sender
 {
     UIBarButtonItem *barButtonItem = (UIBarButtonItem*)sender;
-    [barButtonItem setEnabled:false];
     AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
     NSString *server_base = [NSString stringWithFormat:@"%@/classType!buttonJsonClassTable.action", delegate.SERVER_HOST];
     TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
@@ -429,6 +433,7 @@ static int UPLOADFINISH = -11;
         submitString = [self getSubmitString:false];
     }
     if (submitString) {
+        [SVProgressHUD showWithStatus:@"操作中..." maskType:SVProgressHUDMaskTypeClear];
         request.contentType=@"application/x-www-form-urlencoded";
         NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&jsonTableData={%@}&buttonName=%@&fId=%i",_classType,submitString,barButtonItem.title,_fId];
         NSLog(@"postBodyString:%@",postBodyString);
@@ -486,6 +491,7 @@ static int UPLOADFINISH = -11;
     
     NSString *submitString = [self getSubmitString:true];
     if (submitString) {
+        [SVProgressHUD showWithStatus:@"操作中..." maskType:SVProgressHUDMaskTypeClear];
         request.contentType=@"application/x-www-form-urlencoded";
         NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&jsonTableData={%@}",_classType,submitString];
         NSLog(@"postBodyString:%@",postBodyString);
@@ -510,6 +516,7 @@ static int UPLOADFINISH = -11;
     
     NSString *submitString = [self getSubmitString:false];
     if (submitString) {
+        [SVProgressHUD showWithStatus:@"操作中..." maskType:SVProgressHUDMaskTypeClear];
         request.contentType=@"application/x-www-form-urlencoded";
         NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&fId=%i&auditMsg=%@&jsonTableData={%@}",_classType,_fItemId,@"",submitString];
         NSLog(@"postBodyString:%@",postBodyString);
@@ -534,6 +541,7 @@ static int UPLOADFINISH = -11;
     
     NSString *submitString = [self getSubmitString:false];
     if (submitString) {
+        [SVProgressHUD showWithStatus:@"操作中..." maskType:SVProgressHUDMaskTypeClear];
         request.contentType=@"application/x-www-form-urlencoded";
         NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&classType=%i&fId=%i&jsonTableData={%@}",_classType,_fItemId,submitString];
         NSLog(@"postBodyString:%@",postBodyString);
@@ -1180,6 +1188,7 @@ static int UPLOADFINISH = -11;
     
     NSString *submitString = [self getSubmitString:false];
     if (submitString) {
+        [SVProgressHUD showWithStatus:@"查询中..." maskType:SVProgressHUDMaskTypeClear];
         NSString* postBodyString = [NSString stringWithFormat:@"isMobile=true&fItemClassId=%i&selectFieldName=%@&classType=%i&jsonTableData={%@}",autoAdaptedView.tableField.fItemClassId,autoAdaptedView.tableField.fDataField,_classType,submitString];
         postBodyString = [postBodyString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         request.cachePolicy = TTURLRequestCachePolicyNoCache;
@@ -1224,6 +1233,7 @@ static int UPLOADFINISH = -11;
     else{
         static NSStringCompareOptions comparisonOptions = NSCaseInsensitiveSearch | NSNumericSearch | NSWidthInsensitiveSearch | NSForcedOrderingSearch;
         if (request.userInfo != nil && [request.userInfo compare:@"itemClass" options:comparisonOptions] == NSOrderedSame) {
+            [SVProgressHUD showSuccessWithStatus:@"查询完成"];
             _alertListContent = [[NameValue alloc] initNameValueWithDictionay:[jsonDic objectForKey:@"itemClassList"]];
             [_alertTableView reloadData];
             [_dataAlertView addSubview: _alertTableView];
@@ -1242,12 +1252,14 @@ static int UPLOADFINISH = -11;
             }
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"toolbarProcess" options:comparisonOptions] == NSOrderedSame) {
+            [SVProgressHUD showSuccessWithStatus:@"操作完成"];
             UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"操作成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
             alert.tag = EDITFINISH;
             [alert show];
             [alert release];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"saveTable" options:comparisonOptions] == NSOrderedSame) {
+            [SVProgressHUD showSuccessWithStatus:@"操作完成"];
             //保存成功
             UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"保存成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
             alert.tag = EDITFINISH;
@@ -1255,6 +1267,7 @@ static int UPLOADFINISH = -11;
             [alert release];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"auditTable" options:comparisonOptions] == NSOrderedSame) {
+            [SVProgressHUD showSuccessWithStatus:@"操作完成"];
             //审核成功
             UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"审核成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
             alert.tag = EDITFINISH;
@@ -1262,6 +1275,7 @@ static int UPLOADFINISH = -11;
             [alert release];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"unauditTable" options:comparisonOptions] == NSOrderedSame) {
+            [SVProgressHUD showSuccessWithStatus:@"操作完成"];
             //反审成功
             UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"反审成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
             alert.tag = EDITFINISH;
@@ -1269,6 +1283,7 @@ static int UPLOADFINISH = -11;
             [alert release];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"menuTable" options:comparisonOptions] == NSOrderedSame) {
+            //[SVProgressHUD showSuccessWithStatus:@"操作完成"];
             //附件上传成功
             UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"附件上传成功!" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
             [alert show];
@@ -1278,6 +1293,7 @@ static int UPLOADFINISH = -11;
             //查询该单据信息完毕
             _tableFieldArray = [[TableField alloc] initWithDictionay:[jsonDic objectForKey:@"fieldList"]];
             [self setTable];
+            [SVProgressHUD showSuccessWithStatus:@"查询完成"];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"uploadSelfLocation" options:comparisonOptions] == NSOrderedSame) {
             //上传个人位置信息
@@ -1292,6 +1308,7 @@ static int UPLOADFINISH = -11;
                 [self setkeyWordFieldValue];
             }
             [self setTable];
+            [SVProgressHUD showSuccessWithStatus:@"查询完成"];
         }
     }
 }
@@ -1403,25 +1420,46 @@ static int UPLOADFINISH = -11;
 
 - (void) pickImage
 {
-    if (_lonNumber == 0 || _latNumber == 0) {
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+    BOOL needLocation = false;
+    if ([defaults objectForKey:@"fOpenGPS"]) {
+        needLocation = [[defaults objectForKey:@"fOpenGPS"] boolValue];
+    }
+    if ((_lonNumber == 0 || _latNumber == 0) && needLocation) {
         //创建对话框 提示用户重新输入
         UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"未获取到定位信息,请确认已经开启GPS定位" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
         [alert show];
         [alert release];
         return;
     }
-    UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
-    ipc.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-    ipc.mediaTypes = [NSArray arrayWithObjects:(NSString *)kUTTypeMovie, (NSString *)kUTTypeImage, nil];
-    ipc.delegate =self;
-    ipc.allowsEditing =NO;
-    [self presentModalViewController:ipc animated:YES];
+    
+    QBImagePickerController *imagePickerController = [[QBImagePickerController alloc] init];
+    //ipc.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    //ipc.mediaTypes = [NSArray arrayWithObjects:(NSString *)kUTTypeMovie, (NSString *)kUTTypeImage, nil];
+    imagePickerController.delegate =self;
+    //ipc.allowsEditing =NO;
+    imagePickerController.showsCancelButton = YES;
+    imagePickerController.allowsMultipleSelection = YES;
+    
+    imagePickerController.minimumNumberOfSelection = 1;
+    imagePickerController.maximumNumberOfSelection = 6;
+    UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:imagePickerController];
+    [self presentViewController:navigationController animated:YES completion:NULL];
+    //[self presentModalViewController:imagePickerController animated:YES];
     //[self presentViewController:ipc animated:YES completion:nil];
+    //[self.navigationController pushViewController:imagePickerController animated:YES];
+    [imagePickerController release];
+    [navigationController release];
 }
 
 - (void) snapImage
 {
-    if (_lonNumber == 0 || _latNumber == 0) {
+    NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+    BOOL needLocation = false;
+    if ([defaults objectForKey:@"fOpenGPS"]) {
+        needLocation = [[defaults objectForKey:@"fOpenGPS"] boolValue];
+    }
+    if ((_lonNumber == 0 || _latNumber == 0) && needLocation) {
         //创建对话框 提示用户重新输入
         UIAlertView * alert= [[UIAlertView alloc] initWithTitle:@"未获取到定位信息,请确认已经开启GPS定位" message:nil delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
         [alert show];
@@ -1496,12 +1534,16 @@ static int UPLOADFINISH = -11;
         NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
         formatter.dateFormat = @"yyyyMMddHHmmss";
         NSDate *date = [[NSDate alloc] init];
-        NSString *imageName = [NSString stringWithFormat:@"%@.jpg",[formatter stringFromDate:date]];
+        NSString *imageName = [NSString stringWithFormat:@"%@0.jpg",[formatter stringFromDate:date]];
         [formatter release];
         [date release];
         [self saveImage:imageToSave WithName:imageName];
-        //打开备注信息填写窗口,填写备注
-        PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:imageToSave imageName:imageName classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
+        MyImageObject *imageObject = [[MyImageObject alloc] init];
+        imageObject.image = imageToSave;
+        imageObject.imageName = imageName;
+        NSArray *imageArray = [NSArray arrayWithObject:imageObject];
+        [imageObject release];
+        PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:imageArray classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
         photoInfoSaveViewController.delegate = self;
         [[self navigationController] pushViewController:photoInfoSaveViewController animated:YES];
     }
@@ -1526,13 +1568,17 @@ static int UPLOADFINISH = -11;
             NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
             formatter.dateFormat = @"yyyyMMddHHmmss";
             NSDate *date = [[NSDate alloc] init];
-            NSString *imageName = [NSString stringWithFormat:@"%@.mov",[formatter stringFromDate:date]];
+            NSString *imageName = [NSString stringWithFormat:@"%@0.mov",[formatter stringFromDate:date]];
             [formatter release];
             [date release];
             [self saveData:videoURl WithName:imageName];
             //[self saveImage:img WithName:imageName];
-            //打开备注信息填写窗口,填写备注
-            PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:img imageName:imageName classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
+            MyImageObject *imageObject = [[MyImageObject alloc] init];
+            imageObject.image = img;
+            imageObject.imageName = imageName;
+            NSArray *imageArray = [NSArray arrayWithObject:imageObject];
+            [imageObject release];
+            PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:imageArray classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
             [img release];
             photoInfoSaveViewController.delegate = self;
             [[self navigationController] pushViewController:photoInfoSaveViewController animated:YES];
@@ -1621,6 +1667,92 @@ static int UPLOADFINISH = -11;
     }
     NSLog(@"未找到标签:%i",index);
     return eachPageView;
+}
+
+
+#pragma mark - QBImagePickerControllerDelegate
+
+- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didSelectAsset:(ALAsset *)asset
+{
+    NSLog(@"*** qb_imagePickerController:didSelectAsset:");
+    NSLog(@"%@", asset);
+    ALAssetRepresentation *image_representation = [asset defaultRepresentation];
+    uint8_t *buffer = (Byte*)malloc(image_representation.size);
+    NSUInteger length = [image_representation getBytes:buffer fromOffset:0.0 length:image_representation.size error:nil];
+    if (length != 0) {
+        NSData *adata = [[NSData alloc] initWithBytesNoCopy:buffer length:image_representation.size freeWhenDone:YES];
+        
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"yyyyMMddHHmmss";
+        NSDate *date = [[NSDate alloc] init];
+        NSString *imageName = [NSString stringWithFormat:@"%@0.jpg",[formatter stringFromDate:date]];
+        UIImage *image = [UIImage imageWithData:adata];
+        [formatter release];
+        [date release];
+        [self saveImage:image WithName:imageName];
+        MyImageObject *imageObject = [[MyImageObject alloc] init];
+        imageObject.image = image;
+        imageObject.imageName = imageName;
+        NSArray *imageArray = [NSArray arrayWithObject:imageObject];
+        [imageObject release];
+        PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:imageArray classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
+        photoInfoSaveViewController.delegate = self;
+        [[self navigationController] pushViewController:photoInfoSaveViewController animated:YES];
+    }
+    
+    [self dismissImagePickerController];
+}
+
+- (void)qb_imagePickerController:(QBImagePickerController *)imagePickerController didSelectAssets:(NSArray *)assets
+{
+    NSLog(@"*** qb_imagePickerController:didSelectAssets:");
+    NSLog(@"%@", assets);
+    NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+    int i = 0;
+    for (ALAsset *asset in assets){
+        ALAssetRepresentation *image_representation = [asset defaultRepresentation];
+        uint8_t *buffer = (Byte*)malloc(image_representation.size);
+        NSUInteger length = [image_representation getBytes:buffer fromOffset:0.0 length:image_representation.size error:nil];
+        if (length != 0) {
+            NSData *adata = [[NSData alloc] initWithBytesNoCopy:buffer length:image_representation.size freeWhenDone:YES];
+            
+            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+            formatter.dateFormat = @"yyyyMMddHHmmss";
+            NSDate *date = [[NSDate alloc] init];
+            NSString *imageName = [NSString stringWithFormat:@"%@%i.jpg",[formatter stringFromDate:date],i];
+            i++;
+            UIImage *image = [UIImage imageWithData:adata];
+            [formatter release];
+            [date release];
+            [self saveImage:image WithName:imageName];
+            MyImageObject *imageObject = [[MyImageObject alloc] init];
+            imageObject.image = image;
+            imageObject.imageName = imageName;
+            [imageArray addObject:imageObject];
+            [imageObject release];
+        }
+    }
+    PhotoInfoSaveViewController *photoInfoSaveViewController = [[PhotoInfoSaveViewController alloc] initWithImage:imageArray classType:_classType itemId:_fItemId billNo:_fBillNo lon:_lonNumber lat:_latNumber];
+    photoInfoSaveViewController.delegate = self;
+    [[self navigationController] pushViewController:photoInfoSaveViewController animated:YES];
+    [imageArray release];
+    [self dismissImagePickerController];
+}
+
+- (void)qb_imagePickerControllerDidCancel:(QBImagePickerController *)imagePickerController
+{
+    NSLog(@"*** qb_imagePickerControllerDidCancel:");
+    
+    [self dismissImagePickerController];
+}
+
+- (void)dismissImagePickerController
+{
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:YES completion:NULL];
+    } else {
+        [self.navigationController popToViewController:self animated:YES];
+    }
 }
 
 @end

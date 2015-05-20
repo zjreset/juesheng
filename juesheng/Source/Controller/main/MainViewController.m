@@ -104,6 +104,26 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
     request.userInfo = @"ftpServer";
 }
 
+- (void)setNeedLocation
+{
+    AppDelegate *delegate=(AppDelegate*)[[UIApplication sharedApplication] delegate];
+    NSString *server_base = [NSString stringWithFormat:@"%@/slave!getLocationConfig.action", delegate.SERVER_HOST];
+    TTURLRequest* request = [TTURLRequest requestWithURL: server_base delegate: self];
+    [request setHttpMethod:@"POST"];
+    
+    request.contentType=@"application/x-www-form-urlencoded";
+    NSString* postBodyString = @"";
+    NSLog(@"postBodyString:%@",postBodyString);
+    postBodyString = [postBodyString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    request.cachePolicy = TTURLRequestCachePolicyNoCache;
+    NSData* postData = [NSData dataWithBytes:[postBodyString UTF8String] length:[postBodyString length]];
+    
+    [request setHttpBody:postData];
+    [request send];
+    request.userInfo = @"setNeedLocation";
+    request.response = [[[TTURLDataResponse alloc] init] autorelease];
+}
+
 #pragma mark -
 #pragma mark TTURLRequestDelegate
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,6 +168,7 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
             _isFresh = YES;
             
             [self setFTPServerInfo];
+            [self setNeedLocation];
         }
         else if (request.userInfo != nil && [request.userInfo compare:@"ftpServer" options:comparisonOptions] == NSOrderedSame){
             NSDictionary *ftpServerInfoDict = [resultJSON objectForKey:@"ftpServerInfo"];
@@ -157,6 +178,14 @@ static int LOGINTAG = -1;       //需要退回到登陆状态的TAG标志
                 [defaults setObject:[ftpServerInfoDict objectForKey:@"fFtpPort"] forKey:@"fFtpPort"];
                 [defaults setObject:[ftpServerInfoDict objectForKey:@"fFtpUserName"] forKey:@"fFtpUserName"];
                 [defaults setObject:[ftpServerInfoDict objectForKey:@"fFtpUserPwd"] forKey:@"fFtpUserPwd"];
+                [defaults synchronize];
+            }
+        }
+        else if (request.userInfo != nil && [request.userInfo compare:@"setNeedLocation" options:comparisonOptions] == NSOrderedSame){
+            id fOpenGPSObject = [resultJSON objectForKey:@"fOpenGPS"];
+            if (fOpenGPSObject != nil) {
+                NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
+                [defaults setObject:fOpenGPSObject forKey:@"fOpenGPS"];
                 [defaults synchronize];
             }
         }
